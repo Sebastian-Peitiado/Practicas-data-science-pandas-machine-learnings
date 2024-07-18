@@ -1,0 +1,30 @@
+# Usa una imagen base de Anaconda
+FROM continuumio/anaconda3
+
+# Crea un directorio de trabajo
+WORKDIR /usr/src/app
+
+# Copia el archivo environment.yml al contenedor
+COPY environment.yml .
+
+# Crea un nuevo entorno conda basado en environment.yml
+RUN conda env create -f environment.yml
+
+# Activa el entorno por defecto
+SHELL ["conda", "run", "-n", "myenv", "/bin/bash", "-c"]
+
+# Copia los archivos de tu proyecto al contenedor
+COPY . .
+
+# Instala Poetry
+RUN curl -sSL https://install.python-poetry.org | python3 -
+
+# Añade Poetry al PATH
+ENV PATH="/root/.local/bin:$PATH"
+
+# Instala las dependencias del proyecto usando Poetry
+RUN poetry install
+
+# Comando para iniciar el contenedor
+CMD ["poetry", "run", "python", "main.py"]
+
